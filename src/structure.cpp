@@ -263,7 +263,8 @@ void board::calculateBoardEntropy(vector<vector<vector<string>>> &options) {
                 }
             }
 
-            vector<string> newEntropyArr;
+            vector<vector<string>> newEntropyArr(available.size());
+            vector<string> finalOptions;
             for (int optionIndex = 0; optionIndex < available.size(); optionIndex++) {
                 if (available[optionIndex] == -1) {
                     continue;
@@ -271,20 +272,35 @@ void board::calculateBoardEntropy(vector<vector<vector<string>>> &options) {
                 // int opposite = getOpposite(optionIndex);
                 for (auto possibleTile : connectionConditions) {
                     if (possibleTile.first[optionIndex] == available[optionIndex]) {
-                        newEntropyArr.push_back(possibleTile.second);
+                        newEntropyArr[optionIndex].push_back(possibleTile.second);
                     }
                 }
+                finalOptions = newEntropyArr[optionIndex];
             }
 
-            sort(newEntropyArr.begin(), newEntropyArr.end());
-            newEntropyArr.erase(unique(newEntropyArr.begin(), newEntropyArr.end()), newEntropyArr.end());
+            for(int i = 0; i < newEntropyArr.size(); i++){
+                if(newEntropyArr[i].size() == 0){
+                    continue;
+                }
+                auto temp = newEntropyArr[i];
+                vector<string> temp2;
+                for(auto option : finalOptions){
+                    if(find(temp.begin(), temp.end(), option) != temp.end()){
+                        temp2.push_back(option);
+                    }
+                }
+                finalOptions = temp2;
+            }
+            
+            sort(finalOptions.begin(), finalOptions.end());
+            finalOptions.erase(unique(finalOptions.begin(), finalOptions.end()), finalOptions.end());
 
-            options[rowIndex][locIndex] = newEntropyArr;
+            options[rowIndex][locIndex] = finalOptions;
 
-            if (newEntropyArr.size() == 0 && entropy[rowIndex][rowIndex] != -1) {
+            if (finalOptions.size() == 0 && entropy[rowIndex][rowIndex] != -1) {
                 entropy[rowIndex][locIndex] = -2;
             } else {
-                entropy[rowIndex][locIndex] = newEntropyArr.size();
+                entropy[rowIndex][locIndex] = finalOptions.size();
             }
         }
     }
@@ -367,9 +383,9 @@ void board::generateImage(size_t seed, int sy, int sx) {
                 selected = 0;
             } else if (name == "Down") {
                 selected = 2;
-            } else if (name == "Left") {
-                selected = 1;
             } else if (name == "Right") {
+                selected = 1;
+            } else if (name == "Left") {
                 selected = 3;
             } else {
                 selected = 4;

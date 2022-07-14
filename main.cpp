@@ -6,8 +6,8 @@
 #include "./src/structure.h"
 #include "./src/utilities.h"
 
-#define boardWidth 2
-#define boardHeight 2
+#define boardWidth 3
+#define boardHeight 3
 
 int main() {
     board world(boardWidth, boardHeight);

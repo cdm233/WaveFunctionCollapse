@@ -1,6 +1,7 @@
 #pragma once
 #include "./lodepng.h"
 #include "./utilities.h"
+#include "./settingLoader.h"
 
 struct pixel {
     uint8_t r;
@@ -141,11 +142,14 @@ class board {
     unsigned imageWidth;
     unsigned imageHeight;
     bool filled;
+    bool configRead;
     string filePath;
     vector<vector<tile>> content;
     vector<vector<int>> entropy;  // -1 is taken, -2 is cannot reach , else is empty
     vector<uint8_t> imageBuffer;
     vector<vector<pixel>> pixelBuffer;
+    vector<pair<vector<int>, string>> connectionConditions;
+    vector<string> dic;
 
     board();
     board(int width, int height);
@@ -158,9 +162,11 @@ class board {
     string getTilePath(int type);
     void calculateBoardEntropy(vector<vector<vector<string>>> &options);
     pair<int, int> getLowestEntropyLoc();
+    void readConfig(string path);
     void setBoardFilled();
     void placeTile(int x, int y);
     void resizeBoard(int width, int height);
-    void generateImage(size_t seed = -1, int sy = -1, int sx = -1);
-    void exportBoard(string fileName, int width = -1, int height = -1);
+    void generateImage(size_t seed = -1, int sy = -1, int sx = -1, int type = -1);
+    void exportBoard(string fileName);
+    int getSel(string name);
 };

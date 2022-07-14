@@ -6,13 +6,15 @@
 #include "./src/structure.h"
 #include "./src/utilities.h"
 
-#define boardWidth 3
-#define boardHeight 3
+#define boardWidth 5
+#define boardHeight 5
 
 int main() {
     board world(boardWidth, boardHeight);
 
-    world.generateImage();
+    world.readConfig("./images/config.ini");
+
+    world.generateImage(time(NULL), 1, 2, 2);
     world.writeImageBuffer();
     world.exportBoard("Board");
 

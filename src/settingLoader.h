@@ -1,0 +1,16 @@
+#pragma once
+#include "fstream"
+#include "utilities.h"
+#include "unordered_map"
+
+class settingLoader {
+   public:
+    string path;
+    std::unordered_map<string, vector<int>> setting;
+
+   public:
+    int numSettings;
+    settingLoader(string path);
+    std::pair<string, vector<int>> parseSettingString(std::string setting);
+    vector<int> getSetting(string setting);
+};

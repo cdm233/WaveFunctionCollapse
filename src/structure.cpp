@@ -86,8 +86,9 @@ board::board() {
     boardHeight = -1;
     imageWidth = -1;
     imageHeight = -1;
-    numTypes = 5;
+    numTypes = -1;
     filePath = "";
+    configRead = false;
     filled = false;
     content.clear();
     entropy.clear();
@@ -98,11 +99,29 @@ board::board(int width, int height) {
     boardHeight = height;
     imageWidth = -1;
     imageHeight = -1;
-    numTypes = 5;
+    numTypes = -1;
     filePath = "";
     filled = false;
+    configRead = false;
     content = vector<vector<tile>>(height, vector<tile>(width));
     entropy = vector<vector<int>>(height, vector<int>(width, -2));
+}
+
+void board::readConfig(string path) {
+    settingLoader loader(path);
+    string baseDir = "./images/";
+
+    for (auto& it : loader.setting) {
+        auto name = it.first;
+        auto property = it.second;
+        connectionConditions.push_back({property, name});
+
+        string tempDir = baseDir + name;
+        dic.push_back(tempDir);
+    }
+
+    numTypes = loader.numSettings;
+    configRead = true;
 }
 
 void board::writeImageBuffer() {
@@ -140,19 +159,15 @@ void board::writePixelBuffer() {
     pixelBuffer = imageBuffer2PixelBuffer(imageBuffer, imageWidth, imageHeight);
 }
 
-void board::exportBoard(string fileName, int width, int height) {
+void board::exportBoard(string fileName) {
     if (!filled) {
         cout << "Board not completed filled!";
         return;
     }
-    bool originalSize = width == height == -1;
     fileName = fileName + ".png";
 
     if (imageBuffer.empty()) {
         writeImageBuffer();
-    }
-
-    if (!originalSize) {
     }
 
     lodepng::encode(fileName, imageBuffer, imageWidth, imageHeight);
@@ -166,37 +181,26 @@ void board::resizeBoard(int width, int height) {
 }
 
 direction board::getTileConnection(int type) {
-    // e = 0, d = 1, clockwise
-    vector<vector<int>> dirDic = {
-        {1, 1, 0, 1},
-        {1, 1, 1, 0},
-        {0, 1, 1, 1},
-        {1, 0, 1, 1},
-        {0, 0, 0, 0}};
+    auto tempCondition = connectionConditions[type].first;
 
     direction connect;
     connect.clear();
-    connect.n = dirDic[type][0];
-    connect.e = dirDic[type][1];
-    connect.s = dirDic[type][2];
-    connect.w = dirDic[type][3];
+    connect.n = tempCondition[0];
+    connect.s = tempCondition[1];
+    connect.w = tempCondition[2];
+    connect.e = tempCondition[3];
 
     return connect;
 }
 
 string board::getTilePath(int type) {
-    vector<string> dic = {
-        "./images/Up.png",
-        "./images/Right.png",
-        "./images/Down.png",
-        "./images/Left.png",
-        "./images/Empty.png"};
-
     return dic[type];
 }
 
 tile board::getNewTile(int type) {
     if (type != -1) {
+        // auto a  = getTilePath(type);
+        // cout << a << endl;
         tile newTile(getTilePath(type));
         newTile.connection = getTileConnection(type);
 
@@ -212,13 +216,7 @@ tile board::getNewTile(int type) {
     return newTile;
 }
 
-void board::calculateBoardEntropy(vector<vector<vector<string>>> &options) {
-    vector<pair<vector<int>, string>> connectionConditions = {
-        {{1, 0, 1, 1}, "Up"},
-        {{0, 1, 1, 1}, "Down"},
-        {{1, 1, 1, 0}, "Left"},
-        {{1, 1, 0, 1}, "Right"},
-        {{0, 0, 0, 0}, "Empty"}};
+void board::calculateBoardEntropy(vector<vector<vector<string>>>& options) {
     vector<pair<int, int>> directions = {
         {-1, 0},
         {1, 0},
@@ -278,20 +276,20 @@ void board::calculateBoardEntropy(vector<vector<vector<string>>> &options) {
                 finalOptions = newEntropyArr[optionIndex];
             }
 
-            for(int i = 0; i < newEntropyArr.size(); i++){
-                if(newEntropyArr[i].size() == 0){
+            for (int i = 0; i < newEntropyArr.size(); i++) {
+                if (newEntropyArr[i].size() == 0) {
                     continue;
                 }
                 auto temp = newEntropyArr[i];
                 vector<string> temp2;
-                for(auto option : finalOptions){
-                    if(find(temp.begin(), temp.end(), option) != temp.end()){
+                for (auto option : finalOptions) {
+                    if (find(temp.begin(), temp.end(), option) != temp.end()) {
                         temp2.push_back(option);
                     }
                 }
                 finalOptions = temp2;
             }
-            
+
             sort(finalOptions.begin(), finalOptions.end());
             finalOptions.erase(unique(finalOptions.begin(), finalOptions.end()), finalOptions.end());
 
@@ -328,7 +326,6 @@ void board::placeTile(int sx, int sy) {
         {0, -1},
         {0, 1}};
 
-    cout << "Place Tile At: " << sy << " " << sx << endl;
     entropy[sy][sx] = -1;
 
     for (int dirIndex = 0; dirIndex < directions.size(); dirIndex++) {
@@ -344,7 +341,20 @@ void board::placeTile(int sx, int sy) {
     }
 }
 
-void board::generateImage(size_t seed, int sy, int sx) {
+int board::getSel(string name) {
+    for (int i = 0; i < dic.size(); i++) {
+        auto temp = dic[i].substr(dic[i].find_last_of("/")+1);
+        if (name == temp) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void board::generateImage(size_t seed, int sy, int sx, int iType) {
+    if (!configRead) {
+        return;
+    }
     if (seed == -1) {
         seed = time(NULL);
     }
@@ -359,13 +369,10 @@ void board::generateImage(size_t seed, int sy, int sx) {
 
     entropy[sy][sx] = -1;  // -1 represents tile is taken
 
-    content[sy][sx] = getNewTile();
-
-    // cout << sy << " " << sx << endl;
+    content[sy][sx] = getNewTile(iType);
 
     // place first tile
     placeTile(sx, sy);
-    cout << content[sy][sx].data.filePath << endl;
 
     while (!filled) {
         vector<vector<vector<string>>> options(boardHeight, vector<vector<string>>(boardWidth));
@@ -379,24 +386,13 @@ void board::generateImage(size_t seed, int sy, int sx) {
             int randType = rand() % options[newLoc.first][newLoc.second].size();
             auto name = options[newLoc.first][newLoc.second][randType];
 
-            if (name == "Up") {
-                selected = 0;
-            } else if (name == "Down") {
-                selected = 2;
-            } else if (name == "Right") {
-                selected = 1;
-            } else if (name == "Left") {
-                selected = 3;
-            } else {
-                selected = 4;
-            }
+            selected = getSel(name);
         }
 
         content[newLoc.first][newLoc.second] = getNewTile(selected);
         placeTile(newLoc.second, newLoc.first);
-        cout << "  Type: " << selected << endl;
 
-        calculateBoardEntropy(options);
+        // calculateBoardEntropy(options);
         setBoardFilled();
     }
 }

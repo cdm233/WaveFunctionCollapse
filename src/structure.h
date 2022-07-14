@@ -51,15 +51,13 @@ struct image {
 
         result.filePath = "";
 
-        int breakPoint = round(((float)result.width) / 2);
-
         for (int row = 0; row < result.height; row++) {
             for (int col = 0; col < result.width; col++) {
                 int index = col;
 
                 pixel tempPixel;
-                if (index >= breakPoint) {
-                    index -= breakPoint;
+                if (index >= width) {
+                    index = index % width;
                     tempPixel = rhs.pixelBuffer[row][index];
                 } else {
                     tempPixel = pixelBuffer[row][index];
@@ -89,15 +87,13 @@ struct image {
 
         result.filePath = "";
 
-        int breakPoint = round(((float)result.height) / 2);
-
         for (int row = 0; row < result.height; row++) {
             for (int col = 0; col < result.width; col++) {
                 int index = row;
 
                 pixel tempPixel;
-                if (index >= breakPoint) {
-                    index -= breakPoint;
+                if (index >= height) {
+                    index = index % height;
                     tempPixel = rhs.pixelBuffer[index][col];
                 } else {
                     tempPixel = pixelBuffer[index][col];
@@ -117,6 +113,7 @@ struct image {
 };
 
 struct direction {
+    // empty connection is 0, direction connection is 1
     int e;
     int n;
     int s;
@@ -137,12 +134,16 @@ class tile {
 
 class board {
    public:
+    size_t randSeed;
+    int numTypes;
     int boardWidth;
     int boardHeight;
     unsigned imageWidth;
     unsigned imageHeight;
+    bool filled;
     string filePath;
     vector<vector<tile>> content;
+    vector<vector<int>> entropy;  // -1 is taken, -2 is cannot reach , else is empty
     vector<uint8_t> imageBuffer;
     vector<vector<pixel>> pixelBuffer;
 
@@ -152,5 +153,14 @@ class board {
     void writeImageBuffer();
     void writePixelBuffer();
 
+    tile getNewTile(int type = -1);
+    direction getTileConnection(int type);
+    string getTilePath(int type);
+    void calculateBoardEntropy(vector<vector<vector<string>>> &options);
+    pair<int, int> getLowestEntropyLoc();
+    void setBoardFilled();
+    void placeTile(int x, int y);
+    void resizeBoard(int width, int height);
+    void generateImage(size_t seed = -1, int sy = -1, int sx = -1);
     void exportBoard(string fileName, int width = -1, int height = -1);
 };

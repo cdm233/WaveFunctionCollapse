@@ -1,17 +1,22 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <algorithm>
-#include <set>
-#include <queue>
-#include <list>
 #include <math.h>
+#include <time.h>
+
+#include <algorithm>
+#include <iostream>
+#include <list>
+#include <map>
+#include <queue>
+#include <set>
 #include <stack>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 using namespace std;
 
 uint8_t clip(int input);
+pair<int, int> getNewLocFrom2DVec(vector<vector<int>> board);
+bool locWithinBoard(int x, int y, int width, int height);
+int getOpposite(int num);

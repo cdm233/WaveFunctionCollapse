@@ -12,13 +12,9 @@
 int main() {
     board world(boardWidth, boardHeight);
 
-    world.content[0][0] = tile("./images/Up.png");
-    world.content[0][1] = tile("./images/Down.png");
-    world.content[1][0] = tile("./images/Right.png");
-    world.content[1][1] = tile("./images/Left.png");
-
+    world.generateImage();
     world.writeImageBuffer();
-    world.exportBoard("board");
+    world.exportBoard("Board");
 
     return 0;
 }

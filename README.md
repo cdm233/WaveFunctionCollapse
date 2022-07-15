@@ -7,6 +7,7 @@ Each time the location that has the lowest entropy will be selected and a random
 # Tiles and Their Properties
 All the tiles that will be used to generate the image are contained in the image folder.
 Inside of the folder it has each image and their property, which means who they can be connected with other tiles.  
+It also has a settings.ini file which contains board width and height configuration.
 
 ![image](https://user-images.githubusercontent.com/80089456/179125774-09a70e0c-9764-4b27-9db6-f99a1b826626.png)
 
@@ -15,6 +16,10 @@ Different tiles and the config file
 ![image](https://user-images.githubusercontent.com/80089456/179125799-24270312-f807-48b6-8532-3d2580cf2621.png)
 
 Content of config.ini
+
+![image](https://user-images.githubusercontent.com/80089456/179127824-faa51062-c908-43e1-a6f2-5423590eb368.png)
+
+Content of settings.ini
 
 # Samples Images
 ![board](https://user-images.githubusercontent.com/80089456/179125560-ae2d8e94-1dda-47f3-826f-d0cbb892731d.png)

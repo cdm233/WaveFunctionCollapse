@@ -125,6 +125,8 @@ void board::readConfig(string path) {
 }
 
 void board::writeImageBuffer() {
+    cout << "Writing to Image Buffer..." << endl;
+
     image result;
     bool first = true;
 
@@ -132,7 +134,9 @@ void board::writeImageBuffer() {
         return;
     }
 
+    int counter = 1;
     for (auto row : content) {
+        cout << "\r" << "  " << counter << " out of " << content.size() << " rows written...";
         image rowImage;
         for (int i = 0; i < row.size(); i++) {
             if (i == 0) {
@@ -148,7 +152,11 @@ void board::writeImageBuffer() {
         } else {
             result = result | rowImage;
         }
+        counter++;
     }
+
+    cout << endl;
+    cout << "Finished writing to image buffer" << endl;
 
     imageBuffer = result.imageBuffer;
     imageWidth = content[0][0].data.width * content[0].size();
@@ -160,6 +168,7 @@ void board::writePixelBuffer() {
 }
 
 void board::exportBoard(string fileName) {
+    cout << "Exporting..." << endl;
     if (!filled) {
         cout << "Board not completed filled!";
         return;
@@ -352,6 +361,7 @@ int board::getSel(string name) {
 }
 
 void board::generateImage(size_t seed, int sy, int sx, int iType) {
+    cout << "Start to generate image..." << endl;
     if (!configRead) {
         return;
     }
@@ -374,7 +384,11 @@ void board::generateImage(size_t seed, int sy, int sx, int iType) {
     // place first tile
     placeTile(sx, sy);
 
+    int counter = 1;
+
     while (!filled) {
+        counter ++;
+        cout << "\r" << "  " << counter << " out of " << boardWidth * boardHeight << " finished...";
         vector<vector<vector<string>>> options(boardHeight, vector<vector<string>>(boardWidth));
         calculateBoardEntropy(options);
         auto newLoc = getLowestEntropyLoc();
@@ -395,6 +409,9 @@ void board::generateImage(size_t seed, int sy, int sx, int iType) {
         // calculateBoardEntropy(options);
         setBoardFilled();
     }
+
+    cout << endl;
+    cout << "Generation finished!" << endl;
 }
 
 void board::setBoardFilled() {

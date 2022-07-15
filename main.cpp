@@ -7,6 +7,7 @@
 #include "./src/utilities.h"
 
 int main() {
+    cout << "Got the following settings: " << endl;
     singleSettingLoader sLoader("./settings.ini");
     int boardWidth = 0;
     int boardHeight = 0;
@@ -17,10 +18,14 @@ int main() {
 
     world.readConfig("./images/config.ini");
 
-
     world.generateImage();
+
     world.writeImageBuffer();
+
     world.exportBoard("Board");
 
+    cout << "Exported, program exiting..." << endl;
+
+    sleep(3);
     return 0;
 }

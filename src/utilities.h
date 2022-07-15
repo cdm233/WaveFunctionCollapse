@@ -2,7 +2,7 @@
 
 #include <math.h>
 #include <time.h>
-
+#include <unistd.h>
 #include <algorithm>
 #include <iostream>
 #include <list>

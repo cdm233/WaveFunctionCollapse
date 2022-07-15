@@ -6,15 +6,19 @@
 #include "./src/structure.h"
 #include "./src/utilities.h"
 
-#define boardWidth 5
-#define boardHeight 5
-
 int main() {
+    singleSettingLoader sLoader("./settings.ini");
+    int boardWidth = 0;
+    int boardHeight = 0;
+    boardWidth = atoi(sLoader.getSetting("width").c_str());
+    boardHeight = atoi(sLoader.getSetting("height").c_str());
+
     board world(boardWidth, boardHeight);
 
     world.readConfig("./images/config.ini");
 
-    world.generateImage(time(NULL), 1, 2, 2);
+
+    world.generateImage();
     world.writeImageBuffer();
     world.exportBoard("Board");
 
